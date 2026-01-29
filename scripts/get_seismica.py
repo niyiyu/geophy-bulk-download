@@ -37,22 +37,6 @@ if __name__ == "__main__":
             else:
                 resumptionToken = i.text
 
-        while resumptionToken:
-            response = requests.get(
-                url
-                + "?verb=ListIdentifiers&metadataPrefix=oai_dc&from=1998-01-15&resumptionToken="
-                + resumptionToken
-            )
-            root = ET.fromstring(response.content.decode("utf-8"))
-            resumptionToken = None
-            for i in root[2]:
-                if len(i) == 3:
-                    preprints.append(
-                        {"identifier": i[0].text, "date": i[1].text, "set": i[2].text}
-                    )
-                else:
-                    resumptionToken = i.text
-
         preprints = pd.DataFrame(preprints)
 
     ############# get record and download link
@@ -90,3 +74,17 @@ if __name__ == "__main__":
         response = requests.get(p["download"], headers=headers)
         with open(filename, "wb") as f:
             f.write(response.content)
+
+# ############# verify xml links
+# preprints = pd.read_csv("./metadata/seismica.csv")
+
+# for idx, r in tqdm(preprints.iterrows(), total=len(preprints)):
+#     if r["xml"] == "":
+#         continue
+#     if pd.isna(r["xml"]):
+#         continue
+#     response = requests.get(r["xml"].replace("view", "download"))
+#     try:
+#         assert "<?xml" in response.content.decode("utf-8")
+#     except:
+        # print(r["xml"])
